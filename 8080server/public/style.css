@@ -1,0 +1,53 @@
+body {
+  text-align: center;
+  font-family: "Arial Black";
+}
+.introduce {
+  display: flex;
+  justify-content: center;
+}
+
+img {
+  width: 100%; /*画像サイズ指定*/
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  justify-content: center;
+}
+
+script form {
+  margin: 25px 0;
+  text-align: center;
+}
+script form input[type="text"] {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 5px 0;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid #aaa;
+}
+script form input[type="submit"] {
+  padding: 5px 10px;
+  border: 1px solid #aaa;
+  outline: none;
+  color: #000;
+  background-color: #fff;
+}
+script form input[type="submit"]:hover {
+  color: #fff;
+  background-color: #aaa;
+  cursor: pointer;
+}
+
+script img:hover {
+  opacity: 0.5;
+}
+
+script #result {
+  width: 90%;
+  margin: auto;
+  padding: 30px;
+}
