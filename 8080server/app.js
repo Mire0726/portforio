@@ -11,12 +11,12 @@ app.use(express.static("8080server"));
 
 app.use("/", (req, res) => {
   console.log("Hello, express");
-  res.sendFile(__dirname + "/public/index.html");
-  res.sendFile(__dirname + "/public/style.css");
+  res.sendFile(__dirname + "8080server/public/index.html");
+  res.sendFile(__dirname + "8080server/public/style.css");
 });
 
-app.use("//Users/inouesumire/Downloads/portforio/8080server/works/works.html", (req, res) => {
+app.use("/works", (req, res) => {
   console.log("Hello, express");
-  res.sendFile(__dirname + "/works/works.html");
-  res.sendFile(__dirname + "/works/works.css");
+  res.sendFile(__dirname + "8080server/works/works.html");
+  res.sendFile(__dirname + "8080server/works/works.css");
 });
