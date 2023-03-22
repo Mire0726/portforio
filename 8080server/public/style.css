@@ -1,18 +1,65 @@
+html{
+  width: 100%;
+}
+
+header {
+  background-color: ;
+  height: 80px;
+  width: 100%;
+}
+
 body {
   text-align: center;
-  font-family: "Arial Black";
+  font-family:  "ヒラギノ角ゴ ProN W3", HiraKakuProN-W3, 游ゴシック, "Yu Gothic", メイリオ, Meiryo, Verdana, Helvetica, Arial, sans-serif;
+  justify-content: center;
+  background-color: #cfd2c9;
+  width: 100%;
+  color: #57382c;
+}
+
+.LP {
+  height: 968px;
+  /* position: relative; */
+  background-image:url("https://i.ibb.co/8mwycYm/A4-A9-B64-C-0-CC4-4-B90-BE47-48082-F49-C00-A.jpg");
+  background-repeat: none;
+  background-size: contain;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+  
+}
+.Aboutme{
+  margin: 80px;
 }
 .introduce {
   display: flex;
+  height:300px;
+  position: relative;
+  display: flex;
   justify-content: center;
+  align-items: center;
+  margin: 20px;
+  font-size: 13px;
 }
 
-a {
-  color:#000;
+.image{
+  width: 50%;
 }
 
-img {
-  width: 100%; /*画像サイズ指定*/
+.content{
+  width: 50%;
+}
+
+ul {
+list-style: none;
+position: relative;
+float: right;
+padding: 20px;
+}
+
+.intro_imag {
+  width: 30%; /*画像サイズ指定*/
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -20,38 +67,129 @@ img {
   justify-content: center;
 }
 
-script form {
-  margin: 25px 0;
+img{
+  width: 165px;
+}
+.works {
+  background-color: #eee9e6;
+ padding: 80px;
+}
+
+.cards{
+  display: flex;
+  margin:50px;
+  padding: 50px;
+  justify-content: center;
+}
+.card {
+  background-color:#cfd2c9;
+  box-shadow: 0 0 8px rgba(0, 0, 0, .16);
+  color: #212121;
+  text-decoration: none;
+  width: 50%;
+  margin:20px;
+  width: 50%;
+}
+
+.card_header {
+  display: flex;
+  justify-content: center;
   text-align: center;
-}
-script form input[type="text"] {
-  width: 100%;
-  border: none;
-  outline: none;
-  padding: 5px 0;
-  font-size: 18px;
-  font-weight: bold;
-  border-bottom: 1px solid #aaa;
-}
-script form input[type="submit"] {
-  padding: 5px 10px;
-  border: 1px solid #aaa;
-  outline: none;
-  color: #000;
-  background-color: #fff;
-}
-script form input[type="submit"]:hover {
-  color: #fff;
-  background-color: #aaa;
-  cursor: pointer;
+  flex-wrap: wrap;
 }
 
-script img:hover {
-  opacity: 0.5;
+.card_title {
+  padding: 1rem 1rem 0;
+  font-size: 1.25rem;
+  order: 1;
 }
 
-script #result {
-  width: 90%;
-  margin: auto;
-  padding: 30px;
+.card_image{
+  width: 300%;
+}
+.card_text {
+  font-size: .75rem;
+}
+/*========= ローディング画面のためのCSS ===============*/
+#splash {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background: #333;
+	z-index: 9999999;
+	text-align:center;
+	color:#fff;
+}
+
+#splash-logo {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+/*========= 画面遷移のためのCSS ===============*/
+
+/*画面遷移アニメーション*/
+.splashbg{
+    display: none;
+}
+
+/*bodyにappearクラスがついたら出現*/
+body.appear .splashbg{
+    display: block;
+    content: "";
+    position:fixed;
+	z-index: 999;
+    width: 100%;
+    height: 100vh;
+    top: 0;
+	left: 0;
+    transform: scaleX(0);
+    background-color: #333;/*伸びる背景色の設定*/
+	animation-name:PageAnime;
+	animation-duration:1.2s;
+	animation-timing-function:ease-in-out;
+	animation-fill-mode:forwards;
+}
+
+@keyframes PageAnime{
+	0% {
+		transform-origin:left;
+		transform:scaleX(0);
+	}
+	50% {
+		transform-origin:left;
+		transform:scaleX(1);
+	}
+	50.001% {
+		transform-origin:right;
+	}
+	100% {
+		transform-origin:right;
+		transform:scaleX(0);
+  }
+}
+
+/*画面遷移の後現れるコンテンツ設定*/
+#container{
+	opacity: 0;/*はじめは透過0に*/
+}
+
+/*bodyにappearクラスがついたら出現*/
+body.appear #container{
+	animation-name:PageAnimeAppear;
+	animation-duration:1s;
+	animation-delay: 0.8s;
+	animation-fill-mode:forwards;
+	opacity: 0;
+}
+
+@keyframes PageAnimeAppear{
+	0% {
+	opacity: 0;
+	}
+	100% {
+	opacity: 1;
+}
 }
