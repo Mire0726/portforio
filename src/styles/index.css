@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* Raw palette. Dark values swap in via prefers-color-scheme, so components never need `dark:`. */
+:root {
+  --sidebar: #4b2a72;
+  --sidebar-fg: #e2d6f3;
+  --sidebar-muted: #b7a3d4;
+  --sidebar-hover: #5c3a86;
+  --sidebar-active: #a58ae0;
+  --sidebar-active-fg: #1d0f33;
+  --topbar: #3a1f5b;
+  --surface: #ffffff;
+  --fg: #1d1c1d;
+  --muted: #616061;
+  --line: #e3e1e6;
+  --hover: #f8f7fa;
+  --chip: #f4f1f8;
+  --chip-fg: #b4245d;
+  --link: #1264a3;
+  --reaction: #f2eff7;
+  --reaction-mine: #e8f1fa;
+  --reaction-mine-line: #1d9bd1;
+  --presence: #2bac76;
+  --send: #007a5a;
+  --composer: #ffffff;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sidebar: #24163a;
+    --sidebar-fg: #d9cdea;
+    --sidebar-muted: #9a88b6;
+    --sidebar-hover: #33224f;
+    --sidebar-active: #8e6fd6;
+    --sidebar-active-fg: #120a20;
+    --topbar: #1a1029;
+    --surface: #1a1d21;
+    --fg: #d1d2d3;
+    --muted: #9b9c9e;
+    --line: #35373b;
+    --hover: #222529;
+    --chip: #2a2d31;
+    --chip-fg: #e8912d;
+    --link: #1d9bd1;
+    --reaction: #2a2d31;
+    --reaction-mine: #1c3445;
+    --composer: #222529;
+    color-scheme: dark;
+  }
+}
+
+/* Exposes the palette as utilities: bg-surface, text-muted, border-line, … */
+@theme inline {
+  --font-sans: "Lato", "Noto Sans JP", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-fg: var(--sidebar-fg);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-active-fg: var(--sidebar-active-fg);
+  --color-topbar: var(--topbar);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-hover: var(--hover);
+  --color-chip: var(--chip);
+  --color-chip-fg: var(--chip-fg);
+  --color-link: var(--link);
+  --color-reaction: var(--reaction);
+  --color-reaction-mine: var(--reaction-mine);
+  --color-reaction-mine-line: var(--reaction-mine-line);
+  --color-presence: var(--presence);
+  --color-send: var(--send);
+  --color-composer: var(--composer);
+}
+
+/* Briefly highlights a message jumped to from another post (see jumpToPost). */
+@custom-variant target-flash (&[data-flash]);
+
+@layer base {
+  body {
+    @apply bg-surface font-sans text-[15px] leading-relaxed text-fg antialiased;
+  }
+
+  a {
+    @apply text-link hover:underline;
+  }
+}

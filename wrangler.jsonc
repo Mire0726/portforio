@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portforio",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    // Static assets only (no Worker script). Routing is hash-based, so no SPA fallback is needed.
+    "directory": "./dist"
+  }
+}

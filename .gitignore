@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# generated before dev/build (scripts/fetch-feeds.ts)
+src/data/feeds.generated.json
+
+# cloudflare / wrangler
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
