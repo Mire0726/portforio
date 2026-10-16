@@ -15,14 +15,14 @@ pnpm build     # dist/ に出力
 pnpm preview   # build 結果の確認
 ```
 
-`dev` / `build` の前に `scripts/fetch-feeds.ts` が Zenn の記事一覧、GitHub のアイコン URL、リンクカード用の OGP（タイトル・説明・画像）を取得して `src/data/feeds.generated.json` を生成し、アプリはそれを静的に import します（Zenn の API はブラウザから CORS で叩けないためビルド時に取得）。ユーザー名は `src/data/profile.ts` の `links` から読みます。取得に失敗してもビルドは止まらず、該当チャンネルに「読み込めませんでした」が出るだけです。
+`dev` / `build` の前に `scripts/fetch-feeds.ts` が Zenn の記事一覧、GitHub のアイコン URL、リンクカード用の OGP（タイトル・説明・画像）を取得して `src/data/feeds.generated.json` を生成し、アプリはそれを静的に import します（Zenn の API はブラウザから CORS で叩けないためビルド時に取得）。ユーザー名は `content/profile.md` の `links` から読みます。取得に失敗してもビルドは止まらず、該当チャンネルに「読み込めませんでした」が出るだけです。
 
 ## 内容の更新
 
 | 変えたいもの | 場所 |
 | --- | --- |
 | `#career` / `#activities` の投稿 | `content/career/*.md` / `content/activities/*.md`（1 投稿 1 ファイル） |
-| 自己紹介・スキル・語学・リンク | `src/data/profile.ts` |
+| 名前・肩書・ステータス・自己紹介・募集文・スキル・語学・リンク | `content/profile.md`（本文が自己紹介、それ以外は frontmatter） |
 | Zenn 記事 | 自動（ビルド時に取得。毎朝 6:00 JST に再デプロイ） |
 | チャンネルの追加 | `src/features/channels/registry.ts` に定義を足し、`views/` にビューを作って `ChannelView.tsx` に登録（登録漏れは型エラーになる） |
 
@@ -59,11 +59,12 @@ content/
   career/*.md                #career の投稿（1 投稿 1 ファイル）
   activities/*.md            #activities の投稿
   _template.md               投稿の雛形
+  profile.md                 プロフィール（自己紹介・スキル・リンクなど）
+scripts/load-content.ts      content/ を読み込んで検証（Vite プラグインと fetch-feeds から使う）
 scripts/fetch-feeds.ts       ビルド前に Zenn 記事・GitHub アイコン・リンクカードの OGP を取得
 src/
-  data/profile.ts            自己紹介・スキル・リンク
-  data/posts.ts              content/ の投稿を読み込む
-  lib/                       投稿のパース、生成フィードの型、日付フォーマット
+  data/                      content/ の読み込み結果（profile.ts / posts.ts）
+  lib/                       content/ のパース（frontmatter / profile / posts）、生成フィードの型、日付フォーマット
   components/message/        Slack 風の汎用 UI（Message, LinkCard, Reactions など）
   features/
     authors.tsx              投稿者（自分・bot・閲覧者）

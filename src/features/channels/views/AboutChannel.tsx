@@ -1,6 +1,6 @@
 import { Message } from "../../../components/message/Message";
 import { ChannelIntro, Chips, ExternalLink } from "../../../components/message/parts";
-import { languagesSpoken, links, profile, skills } from "../../../data/profile";
+import { links, profile, skills, spokenLanguages } from "../../../data/profile";
 import { me } from "../../authors";
 
 export function AboutChannel() {
@@ -15,7 +15,9 @@ export function AboutChannel() {
         <p>
           はじめまして！ <strong>{profile.name}</strong> です。{profile.title} をしています。
         </p>
-        <p>{profile.bio}</p>
+        {profile.bio.map((paragraph, i) => (
+          <p key={i}>{paragraph}</p>
+        ))}
         <p className="text-muted">🎓 {profile.school}</p>
       </Message>
 
@@ -37,7 +39,7 @@ export function AboutChannel() {
         <p>
           <strong>🧰 Infra / Tools</strong>
         </p>
-        <Chips items={skills.others} />
+        <Chips items={skills.tools} />
       </Message>
 
       <Message author={me} time="pinned 📌" compact reactions={["🌏"]}>
@@ -45,7 +47,7 @@ export function AboutChannel() {
           <strong>🗣️ 語学</strong>
         </p>
         <ul>
-          {languagesSpoken.map((l) => (
+          {spokenLanguages.map((l) => (
             <li key={l}>{l}</li>
           ))}
         </ul>

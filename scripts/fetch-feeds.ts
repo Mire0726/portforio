@@ -2,10 +2,10 @@
 // which the app imports statically. (Zenn's API doesn't allow browser CORS.)
 // Failures never break the build: the affected channel just shows a fallback.
 import { writeFile } from "node:fs/promises";
-import { links } from "../src/data/profile.ts";
 import type { Feeds, LinkPreview } from "../src/lib/feeds.ts";
-import { loadPosts } from "./load-posts.ts";
+import { loadPosts, loadProfile } from "./load-content.ts";
 
+const { links } = await loadProfile();
 const OUT_FILE = new URL("../src/data/feeds.generated.json", import.meta.url);
 const TIMEOUT_MS = 10_000;
 

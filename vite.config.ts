@@ -1,26 +1,30 @@
 import { defineConfig, type Plugin } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { CONTENT_DIR, loadPosts } from "./scripts/load-posts.ts";
+import { CONTENT_DIR, loadPosts, loadProfile } from "./scripts/load-content.ts";
 
-const POSTS_ID = "virtual:posts";
-const RESOLVED_POSTS_ID = "\0" + POSTS_ID;
+const CONTENT_ID = "virtual:content";
+const RESOLVED_CONTENT_ID = "\0" + CONTENT_ID;
 
-/** Exposes content/**\/*.md as `virtual:posts`, parsed at build time; reloads the page when a post changes. */
-function posts(): Plugin {
+/** Exposes content/ (profile + posts) as `virtual:content`, parsed at build time; reloads the page on edits. */
+function content(): Plugin {
   return {
-    name: "posts",
-    resolveId: (id) => (id === POSTS_ID ? RESOLVED_POSTS_ID : undefined),
+    name: "content",
+    resolveId: (id) => (id === CONTENT_ID ? RESOLVED_CONTENT_ID : undefined),
     async load(id) {
-      if (id !== RESOLVED_POSTS_ID) return;
-      const { career, activities } = await loadPosts();
-      return `export const careerPosts = ${JSON.stringify(career)};\nexport const activityPosts = ${JSON.stringify(activities)};`;
+      if (id !== RESOLVED_CONTENT_ID) return;
+      const [profile, { career, activities }] = await Promise.all([loadProfile(), loadPosts()]);
+      return [
+        `export const profile = ${JSON.stringify(profile)};`,
+        `export const careerPosts = ${JSON.stringify(career)};`,
+        `export const activityPosts = ${JSON.stringify(activities)};`,
+      ].join("\n");
     },
     configureServer(server) {
       server.watcher.add(CONTENT_DIR);
       const reload = (file: string) => {
         if (!file.startsWith(CONTENT_DIR)) return;
-        const mod = server.moduleGraph.getModuleById(RESOLVED_POSTS_ID);
+        const mod = server.moduleGraph.getModuleById(RESOLVED_CONTENT_ID);
         if (mod) server.moduleGraph.invalidateModule(mod);
         server.ws.send({ type: "full-reload" });
       };
@@ -30,5 +34,5 @@ function posts(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), posts()],
+  plugins: [react(), tailwindcss(), content()],
 });

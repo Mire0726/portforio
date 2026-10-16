@@ -1,3 +1,6 @@
-// Career / activity posts from content/<channel>/*.md, parsed at build time by the Vite plugin in vite.config.ts.
-// Add a post by dropping a file there (see content/_template.md).
-export { activityPosts, careerPosts } from "virtual:posts";
+// Career / activity posts from content/<channel>/*.md (see content/_template.md).
+import * as content from "virtual:content";
+import type { Post } from "../lib/posts";
+
+export const careerPosts = content.careerPosts as Post[];
+export const activityPosts = content.activityPosts as Post[];
