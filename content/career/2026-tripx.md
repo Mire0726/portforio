@@ -5,7 +5,7 @@ period: "2026 - 現在"
 links:
   - title: 株式会社TripX
     url: https://tripx.co.jp/
-reactions: [🏨]
+reactions: [✈️]
 ---
 
-観光・宿泊業の DX を支援する東京大学発の AI スタートアップで、システム開発に業務委託として携わっている。
+観光・宿泊業の DX を支援するスタートアップで、システム開発に業務委託として携わっている。
