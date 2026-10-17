@@ -128,21 +128,39 @@ const isIco = (buf: Buffer) => buf.readUInt32BE(0) === 0x00000100;
 // Many cards share a favicon (every Zenn article), so each image is fetched once.
 const imageCache = new Map<string, Promise<string | undefined>>();
 
+// Unbounded, dozens of downloads + conversions at once stall each other past the timeout on small CI runners.
+const MAX_CONCURRENT_IMAGES = 6;
+let activeImages = 0;
+const waitingImages: (() => void)[] = [];
+
+async function withImageSlot<T>(fn: () => Promise<T>): Promise<T> {
+  while (activeImages >= MAX_CONCURRENT_IMAGES) await new Promise<void>((resolve) => waitingImages.push(resolve));
+  activeImages++;
+  try {
+    return await fn();
+  } finally {
+    activeImages--;
+    waitingImages.shift()?.();
+  }
+}
+
 /**
  * Downloads a remote image, shrinks it to WebP under public/cached/ and returns its local path.
  * Files are named by content hash, so /cached/* can be cached forever. Undefined on failure: the UI omits the image.
  */
 function cacheImage(url: string, size: keyof typeof IMAGE_SIZES): Promise<string | undefined> {
   const key = `${size}:${url}`;
-  if (!imageCache.has(key)) imageCache.set(key, downloadImage(url, size));
+  if (!imageCache.has(key)) imageCache.set(key, withImageSlot(() => downloadImage(url, size)));
   return imageCache.get(key)!;
 }
 
 async function downloadImage(url: string, size: keyof typeof IMAGE_SIZES): Promise<string | undefined> {
   try {
     const res = await fetch(url, { headers: BROWSER_UA, signal: AbortSignal.timeout(TIMEOUT_MS) });
-    if (!res.ok) throw new Error(`${res.status}`);
-    if (Number(res.headers.get("content-length")) > MAX_IMAGE_BYTES) throw new Error("too large");
+    if (!res.ok || Number(res.headers.get("content-length")) > MAX_IMAGE_BYTES) {
+      await res.body?.cancel(); // Release the connection.
+      throw new Error(res.ok ? "too large" : `${res.status}`);
+    }
     const input = Buffer.from(await res.arrayBuffer());
     const output = await (isIco(input) ? decodeIco(input) : sharp(input))
       .resize({ ...IMAGE_SIZES[size], withoutEnlargement: true })
@@ -168,7 +186,10 @@ async function firstCachedImage(urls: (string | undefined)[], size: keyof typeof
   return undefined;
 }
 
-async function fetchPreview(url: string): Promise<LinkPreview> {
+/** The page's OGP text, plus the remote image URLs to cache once every page has been fetched. */
+type RemotePreview = { preview: LinkPreview; image?: string; icons: (string | undefined)[] };
+
+async function fetchPreview(url: string): Promise<RemotePreview> {
   const res = await fetch(url, { headers: BROWSER_UA, signal: AbortSignal.timeout(TIMEOUT_MS) });
   if (!res.ok) throw new Error(`${res.status} (${url})`);
   const html = await res.text();
@@ -179,14 +200,15 @@ async function fetchPreview(url: string): Promise<LinkPreview> {
     return url.protocol === "https:" ? url.href : undefined;
   };
   const icons = [...html.matchAll(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]*href=["']([^"']+)["']/gi)].map((m) => abs(m[1]));
-  const image = abs(metaContent(html, "og:image"));
   return {
-    title:
-      metaContent(html, "og:title") ??
-      (decodeEntities(html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1] ?? "").trim() || undefined),
-    description: metaContent(html, "og:description") ?? metaContent(html, "description"),
-    image: image && (await cacheImage(image, "card")),
-    favicon: await firstCachedImage([...icons, abs("/favicon.ico")], "icon"),
+    preview: {
+      title:
+        metaContent(html, "og:title") ??
+        (decodeEntities(html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1] ?? "").trim() || undefined),
+      description: metaContent(html, "og:description") ?? metaContent(html, "description"),
+    },
+    image: abs(metaContent(html, "og:image")),
+    icons: [...icons, abs("/favicon.ico")],
   };
 }
 
@@ -197,21 +219,35 @@ async function fetchSpeakerDeckEmbed(url: string): Promise<string | undefined> {
   return src;
 }
 
-/** OGP for every link card on the site, keyed by URL. Missing entries fall back to the plain title. */
+/**
+ * OGP for every link card on the site, keyed by URL. Missing entries fall back to the plain title.
+ * Pages are fetched first and images afterwards, so slow image downloads can't time out the page fetches.
+ */
 async function fetchPreviews(urls: string[]): Promise<Feeds["previews"]> {
-  const entries = await Promise.all(
+  const remote = await Promise.all(
     [...new Set(urls)].map(async (url) => {
       try {
-        const preview = await fetchPreview(url);
-        if (new URL(url).hostname === "speakerdeck.com") preview.embed = await fetchSpeakerDeckEmbed(url);
-        return [url, preview] as const;
+        const result = await fetchPreview(url);
+        if (new URL(url).hostname === "speakerdeck.com") result.preview.embed = await fetchSpeakerDeckEmbed(url);
+        return [url, result] as const;
       } catch (err) {
         console.warn(`[fetch-feeds] preview failed — ${(err as Error).message}`);
         return null;
       }
     }),
   );
-  return Object.fromEntries(entries.filter((e) => e !== null));
+  const entries = await Promise.all(
+    remote
+      .filter((e) => e !== null)
+      .map(async ([url, { preview, image, icons }]) => {
+        const [localImage, favicon] = await Promise.all([
+          image && cacheImage(image, "card"),
+          firstCachedImage(icons, "icon"),
+        ]);
+        return [url, { ...preview, image: localImage, favicon }] as const;
+      }),
+  );
+  return Object.fromEntries(entries);
 }
 
 async function settle<T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> {
