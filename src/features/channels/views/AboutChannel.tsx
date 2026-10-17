@@ -26,8 +26,7 @@ export function AboutChannel() {
           <strong>{profile.status}</strong>
         </p>
         <p>
-          {profile.hiring} ご連絡は <ExternalLink href={links.x.url}>X の DM</ExternalLink> か{" "}
-          <a href="#/contact">DM チャンネル</a> のリンクからどうぞ。
+          {profile.hiring} ご連絡は <ExternalLink href={links.x.url}>X の DM</ExternalLink>から！
         </p>
       </Message>
 
