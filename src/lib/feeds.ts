@@ -15,6 +15,7 @@ export type ZennArticle = {
 export type LinkPreview = {
   title?: string;
   description?: string;
+  /** Local paths under /cached/ (shrunk copies made at build time). */
   image?: string;
   favicon?: string;
   /** Embeddable player URL (Speaker Deck slides), shown instead of the card. */
@@ -24,7 +25,7 @@ export type LinkPreview = {
 export type Feeds = {
   generatedAt: string;
   zenn: ZennArticle[];
-  /** GitHub avatar, used as the profile picture. */
+  /** GitHub avatar (local path under /cached/), used as the profile picture. */
   avatarUrl: string | null;
   /** Keyed by URL. */
   previews: Record<string, LinkPreview>;

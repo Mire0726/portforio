@@ -1,6 +1,6 @@
 # Security headers for every response (Cloudflare Workers static assets).
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; frame-src https://speakerdeck.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src https://speakerdeck.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
@@ -8,4 +8,8 @@
 
 # Hashed build output never changes, so it can be cached forever.
 /assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Shrunk remote images from scripts/fetch-feeds.ts, named by content hash.
+/cached/*
   Cache-Control: public, max-age=31536000, immutable
