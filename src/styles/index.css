@@ -23,6 +23,9 @@
   --presence: #2bac76;
   --send: #007a5a;
   --composer: #ffffff;
+  --glass-edge: rgb(255 255 255 / 0.6);
+  --glass-highlight: rgb(255 255 255 / 0.9);
+  --glass-shadow: rgb(29 15 51 / 0.16);
   color-scheme: light;
 }
 
@@ -46,6 +49,9 @@
     --reaction: #2a2d31;
     --reaction-mine: #1c3445;
     --composer: #222529;
+    --glass-edge: rgb(255 255 255 / 0.12);
+    --glass-highlight: rgb(255 255 255 / 0.14);
+    --glass-shadow: rgb(0 0 0 / 0.45);
     color-scheme: dark;
   }
 }
@@ -76,6 +82,17 @@
   --color-presence: var(--presence);
   --color-send: var(--send);
   --color-composer: var(--composer);
+}
+
+/* Liquid glass (mobile only, like Slack for iOS 26): a translucent, blurred pane with a lit top edge, floating over the content. */
+@utility glass {
+  background: color-mix(in oklab, var(--surface) 58%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    0 8px 28px -10px var(--glass-shadow);
 }
 
 /* Briefly highlights a message jumped to from another post (see jumpToPost). */

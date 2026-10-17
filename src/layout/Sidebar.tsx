@@ -6,9 +6,6 @@ type Props = {
   active: ChannelId;
   visited: ReadonlySet<ChannelId>;
   onNavigate: (id: ChannelId) => void;
-  /** Mobile drawer state; the sidebar is always shown from md up. */
-  open: boolean;
-  onClose: () => void;
 };
 
 const itemBase = "mx-2 flex w-[calc(100%-1rem)] items-center gap-2 rounded-md px-2.5 py-1 text-left text-[15px]";
@@ -17,7 +14,8 @@ function Presence() {
   return <span className="inline-block size-2.25 rounded-full bg-presence" />;
 }
 
-export function Sidebar({ active, visited, onNavigate, open, onClose }: Props) {
+/** Desktop only; on mobile the channel list is its own screen (MobileHome). */
+export function Sidebar({ active, visited, onNavigate }: Props) {
   const item = (c: Channel, icon: ReactNode) => (
     <SidebarItem
       key={c.id}
@@ -30,47 +28,40 @@ export function Sidebar({ active, visited, onNavigate, open, onClose }: Props) {
   );
 
   return (
-    <>
-      <aside
-        id="sidebar"
-        aria-label="チャンネル一覧"
-        className={`fixed inset-y-0 left-0 z-30 w-[min(300px,85vw)] overflow-y-auto border-r border-white/10 bg-sidebar text-sidebar-fg transition-[translate,visibility] duration-200 md:visible md:static md:z-auto md:col-start-1 md:row-start-2 md:w-auto md:translate-x-0 ${
-          // `invisible` keeps the closed drawer out of the tab order.
-          open ? "visible translate-x-0" : "invisible -translate-x-full"
-        }`}
-      >
-        <div className="flex flex-col border-b border-white/10 px-4 py-3 text-[17px] font-black text-white">
-          <span>{profile.name}'s Portfolio</span>
-          <span className="flex items-center gap-1.5 text-[13px] font-normal text-sidebar-muted">
-            <Presence /> {profile.title}
-          </span>
-          <span className="text-[13px] font-normal text-sidebar-muted">{profile.status}</span>
-        </div>
-        <nav className="pt-2 pb-6">
-          <SidebarSection title="チャンネル">
-            {channels.filter((c) => c.kind === "channel").map((c) => item(c, "#"))}
-          </SidebarSection>
-          <SidebarSection title="ダイレクトメッセージ">
-            {channels.filter((c) => c.kind === "dm").map((c) => item(c, <Presence />))}
-          </SidebarSection>
-          <SidebarSection title="外部リンク">
-            {Object.values(links).map((l) => (
-              <a
-                key={l.url}
-                href={l.url}
-                target="_blank"
-                rel="noreferrer"
-                className={`${itemBase} text-sidebar-muted hover:bg-sidebar-hover hover:no-underline`}
-              >
-                <span className="inline-flex w-4 justify-center opacity-90">↗</span>
-                <span>{l.label}</span>
-              </a>
-            ))}
-          </SidebarSection>
-        </nav>
-      </aside>
-      {open && <div className="fixed inset-0 z-25 bg-black/40 md:hidden" aria-hidden onClick={onClose} />}
-    </>
+    <aside
+      aria-label="チャンネル一覧"
+      className="col-start-1 row-start-2 hidden overflow-y-auto border-r border-white/10 bg-sidebar text-sidebar-fg md:block"
+    >
+      <div className="flex flex-col border-b border-white/10 px-4 py-3 text-[17px] font-black text-white">
+        <span>{profile.name}'s Portfolio</span>
+        <span className="flex items-center gap-1.5 text-[13px] font-normal text-sidebar-muted">
+          <Presence /> {profile.title}
+        </span>
+        <span className="text-[13px] font-normal text-sidebar-muted">{profile.status}</span>
+      </div>
+      <nav className="pt-2 pb-6">
+        <SidebarSection title="チャンネル">
+          {channels.filter((c) => c.kind === "channel").map((c) => item(c, "#"))}
+        </SidebarSection>
+        <SidebarSection title="ダイレクトメッセージ">
+          {channels.filter((c) => c.kind === "dm").map((c) => item(c, <Presence />))}
+        </SidebarSection>
+        <SidebarSection title="外部リンク">
+          {Object.values(links).map((l) => (
+            <a
+              key={l.url}
+              href={l.url}
+              target="_blank"
+              rel="noreferrer"
+              className={`${itemBase} text-sidebar-muted hover:bg-sidebar-hover hover:no-underline`}
+            >
+              <span className="inline-flex w-4 justify-center opacity-90">↗</span>
+              <span>{l.label}</span>
+            </a>
+          ))}
+        </SidebarSection>
+      </nav>
+    </aside>
   );
 }
 
