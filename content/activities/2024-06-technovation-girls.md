@@ -2,6 +2,11 @@
 org: Technovation Girls Japan 2024
 role: 運営
 period: "2024.6"
+links:
+  - tile: Technovation Girls Japan
+    url: https://technovation.waffle-waffle.org/
+  - title: Technovation Girls Japan 2024インパクトレポート
+    url: https://waffle-waffle.org/wp-content/uploads/2024/09/tg2024_report.pdf
 reactions: [👩‍💻, ✨]
 ---
 

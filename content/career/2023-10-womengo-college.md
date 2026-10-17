@@ -1,5 +1,5 @@
 ---
-org: サイバーエージェント WomenGo College
+org: サイバーエージェント Women Go College
 role: バックエンドエンジニア / インターン
 period: "2023.10 - 2023.12"
 stack: [Go]
