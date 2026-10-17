@@ -1,10 +1,8 @@
 # portforio
 
-Suu のポートフォリオ（サイト上には本名を出さない方針）。Slack 風の UI で、経歴・活動・Zenn 記事をチャンネルとして並べています。
-
 - Vite + React + TypeScript + Tailwind CSS v4 の静的サイト
 - Cloudflare Workers（静的アセット配信、無料プラン）にデプロイ
-- `main` への push でデプロイ（本番のみ。stg などの環境はなし）
+- `main` への push でデプロイ
 
 ## 開発
 
@@ -83,23 +81,11 @@ src/
 
 `.github/workflows/deploy.yml` が `main` への push（と毎日の定期実行・手動実行）で `wrangler deploy` します。PR では `ci.yml` がビルドだけ確認します。
 
-### 初回セットアップ
-
-1. Cloudflare のダッシュボードで **API トークン**を作成（テンプレート「Edit Cloudflare Workers」）
-2. **Account ID** を控える（Workers & Pages の右サイドバー）
-3. GitHub リポジトリの Settings → Secrets and variables → Actions に登録
-   - `CLOUDFLARE_API_TOKEN`
-   - `CLOUDFLARE_ACCOUNT_ID`
-4. `main` に push → `https://portforio.<your-subdomain>.workers.dev` で公開
-
-独自ドメインを使う場合は Cloudflare ダッシュボードの Workers → portforio → Settings → Domains & Routes から追加します。
-
 ### セキュリティ
 
 - `public/_headers` で CSP などのセキュリティヘッダーを付けている。読み込めるのは自サイトのスクリプト、Google Fonts、https の画像、Speaker Deck の埋め込みのみ。外部の埋め込みやスクリプトを増やすときはここも更新する
 - 投稿の `links` は http(s) の URL のみ受け付ける（`javascript:` などはビルドエラー）
 - GitHub Actions のアクションはコミット SHA で固定している（タグの付け替えによる乗っ取り対策）。更新するときは SHA ごと書き換える
-- サイト上には本名を出さない方針。例外は LinkedIn のリンク先 URL のみ
 
 ### 料金
 
