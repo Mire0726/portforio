@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { jumpToMessage } from "./features/channels/anchors";
 import { ChannelView } from "./features/channels/ChannelView";
-import { channelLabel, getChannel } from "./features/channels/registry";
+import { channelLabel, getChannel, type ChannelId } from "./features/channels/registry";
 import { useActiveChannel } from "./features/channels/useActiveChannel";
 import { Composer } from "./features/chat/Composer";
 import { LocalMessages } from "./features/chat/LocalMessages";
@@ -14,6 +15,13 @@ export default function App() {
   const { route, active, visited, navigate, goHome } = useActiveChannel();
   const chat = useLocalChat();
   const scrollRef = useRef<HTMLDivElement>(null);
+  // A message to scroll to once its channel has rendered (set by search results).
+  const [jumpTarget, setJumpTarget] = useState<string | null>(null);
+
+  const openHit = (id: ChannelId, anchor?: string) => {
+    navigate(id);
+    setJumpTarget(anchor ?? null);
+  };
 
   const channel = getChannel(active);
   const localMessages = chat.messagesIn(active);
@@ -26,14 +34,21 @@ export default function App() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [route, active, localMessages]);
 
+  // Runs after the effect above, so a search hit wins over "open at the latest message".
+  useEffect(() => {
+    if (!jumpTarget) return;
+    jumpToMessage(jumpTarget);
+    setJumpTarget(null);
+  }, [jumpTarget]);
+
   return (
     <div className="grid h-dvh grid-cols-1 grid-rows-1 md:grid-cols-[260px_1fr] md:grid-rows-[44px_1fr]">
       <div className="hidden items-center justify-center bg-topbar px-4 md:col-span-2 md:flex">
-        <SearchBox onNavigate={navigate} />
+        <SearchBox onNavigate={openHit} />
       </div>
 
       <Sidebar active={active} visited={visited} onNavigate={navigate} />
-      {home && <MobileHome visited={visited} onNavigate={navigate} />}
+      {home && <MobileHome visited={visited} onNavigate={openHit} />}
 
       {/* On mobile the header and composer float over the messages, which scroll edge to edge underneath. */}
       <main className={`relative min-h-0 min-w-0 flex-col md:col-start-2 md:row-start-2 md:flex ${home ? "hidden" : "flex"}`}>

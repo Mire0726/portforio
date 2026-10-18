@@ -5,7 +5,8 @@ import { SearchBox } from "../features/search/SearchBox";
 
 type Props = {
   visited: ReadonlySet<ChannelId>;
-  onNavigate: (id: ChannelId) => void;
+  /** `anchor` comes from search results: the DOM id of the message to scroll to. */
+  onNavigate: (id: ChannelId, anchor?: string) => void;
 };
 
 /**
@@ -66,9 +67,9 @@ export function MobileHome({ visited, onNavigate }: Props) {
               <SearchBox
                 variant="sheet"
                 autoFocus
-                onNavigate={(id) => {
+                onNavigate={(id, anchor) => {
                   setSearching(false);
-                  onNavigate(id);
+                  onNavigate(id, anchor);
                 }}
               />
             </div>

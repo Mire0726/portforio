@@ -1,20 +1,23 @@
 import { activityPosts, careerPosts } from "../../data/posts";
 import { feeds } from "../../lib/feeds";
+import { postAnchorId, zennAnchorId } from "../channels/anchors";
 import { channelLabel, channels, getChannel, type ChannelId } from "../channels/registry";
 
-export type SearchHit = { channel: ChannelId; label: string; sub: string };
+/** `anchor` is the DOM id of the matching message; channel hits have none and open at the latest message. */
+export type SearchHit = { channel: ChannelId; label: string; sub: string; anchor?: string };
 
-const hit = (channel: ChannelId, label: string, sub: string): SearchHit => ({
+const hit = (channel: ChannelId, label: string, sub: string, anchor?: string): SearchHit => ({
   channel,
   label,
   sub: `${channelLabel(getChannel(channel))} · ${sub}`,
+  anchor,
 });
 
 export const searchIndex: SearchHit[] = [
   ...channels.map((c) => hit(c.id, channelLabel(c), c.topic)),
-  ...careerPosts.map((p) => hit("career", p.org, p.stack.join(", "))),
-  ...activityPosts.map((p) => hit("activities", p.org, p.role)),
-  ...feeds.zenn.map((a) => hit("zenn", `${a.emoji} ${a.title}`, "Zenn")),
+  ...careerPosts.map((p) => hit("career", p.org, p.stack.join(", "), postAnchorId(p))),
+  ...activityPosts.map((p) => hit("activities", p.org, p.role, postAnchorId(p))),
+  ...feeds.zenn.map((a) => hit("zenn", `${a.emoji} ${a.title}`, "Zenn", zennAnchorId(a))),
 ];
 
 export function search(query: string, limit = 8): SearchHit[] {

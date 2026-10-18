@@ -4,7 +4,8 @@ import type { ChannelId } from "../channels/registry";
 import { search } from "./searchIndex";
 
 type Props = {
-  onNavigate: (id: ChannelId) => void;
+  /** Opens the hit's channel and, when given, scrolls to the message with that DOM id. */
+  onNavigate: (id: ChannelId, anchor?: string) => void;
   /** "topbar" sits in the desktop top bar; "sheet" is the mobile search field at the bottom, with results opening upward. */
   variant?: "topbar" | "sheet";
   autoFocus?: boolean;
@@ -65,7 +66,7 @@ export function SearchBox({ onNavigate, variant = "topbar", autoFocus }: Props) 
                 type="button"
                 className="group/hit flex w-full cursor-pointer flex-col items-start px-3.5 py-1.5 text-left hover:bg-link hover:text-white"
                 onClick={() => {
-                  onNavigate(h.channel);
+                  onNavigate(h.channel, h.anchor);
                   setQuery("");
                   inputRef.current?.blur();
                 }}

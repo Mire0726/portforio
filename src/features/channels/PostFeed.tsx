@@ -5,18 +5,7 @@ import { Chips, DateDivider } from "../../components/message/parts";
 import { feeds } from "../../lib/feeds";
 import type { Post } from "../../lib/posts";
 import { me } from "../authors";
-
-/** DOM id of a post's message, e.g. "post-2025-01-monolu". */
-export const postAnchorId = (p: Post) => `post-${p.file.replace(/^.*\//, "").replace(/\.md$/, "")}`;
-
-/** Scrolls the message list to a post and briefly highlights it. */
-export function jumpToPost(p: Post) {
-  const el = document.getElementById(postAnchorId(p));
-  if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "center" });
-  el.setAttribute("data-flash", "");
-  setTimeout(() => el.removeAttribute("data-flash"), 1200);
-}
+import { postAnchorId } from "./anchors";
 
 /** Posts (already sorted oldest first) as messages, with a divider at each new year. */
 export function PostFeed({ posts }: { posts: Post[] }) {

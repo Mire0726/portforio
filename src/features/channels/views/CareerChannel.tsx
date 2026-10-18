@@ -2,7 +2,8 @@ import { Message } from "../../../components/message/Message";
 import { ChannelIntro, DateDivider } from "../../../components/message/parts";
 import { careerPosts } from "../../../data/posts";
 import { me } from "../../authors";
-import { jumpToPost, PostFeed } from "../PostFeed";
+import { jumpToMessage, postAnchorId } from "../anchors";
+import { PostFeed } from "../PostFeed";
 
 export function CareerChannel() {
   const ongoing = careerPosts.filter((p) => p.ongoing);
@@ -25,7 +26,7 @@ export function CareerChannel() {
                 <li key={p.file}>
                   <button
                     type="button"
-                    onClick={() => jumpToPost(p)}
+                    onClick={() => jumpToMessage(postAnchorId(p))}
                     className="cursor-pointer text-left text-link hover:underline"
                   >
                     {p.org}

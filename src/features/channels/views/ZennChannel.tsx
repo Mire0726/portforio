@@ -6,6 +6,7 @@ import { links } from "../../../data/profile";
 import { formatDate, formatMonth } from "../../../lib/date";
 import { feeds } from "../../../lib/feeds";
 import { bots } from "../../authors";
+import { zennAnchorId } from "../anchors";
 import { FeedUnavailable } from "../FeedUnavailable";
 
 export function ZennChannel() {
@@ -19,7 +20,7 @@ export function ZennChannel() {
     return (
       <Fragment key={a.url}>
         {newMonth && <DateDivider label={month} />}
-        <Message author={bots.zenn} time={formatDate(a.publishedAt)} compact={!newMonth}>
+        <Message id={zennAnchorId(a)} author={bots.zenn} time={formatDate(a.publishedAt)} compact={!newMonth}>
           {newMonth && <p>新しい記事が公開されました</p>}
           <LinkCard
             url={a.url}
