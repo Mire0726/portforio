@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.34.5",
   "scripts": {
     "fetch-feeds": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/fetch-feeds.ts",
-    "dev": "pnpm fetch-feeds && vite",
+    "dev": "pnpm fetch-feeds --if-stale && vite",
     "build": "pnpm fetch-feeds && tsc -b && vite build",
     "preview": "vite preview",
     "deploy": "wrangler deploy"

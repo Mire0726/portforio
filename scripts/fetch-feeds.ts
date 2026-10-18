@@ -4,17 +4,40 @@
 // multi-megabyte originals from third-party servers.
 // Failures never break the build: the affected channel just shows a fallback.
 import { createHash } from "node:crypto";
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
+import path from "node:path";
 import sharp, { type Sharp } from "sharp";
 import type { Feeds, LinkPreview } from "../src/lib/feeds.ts";
-import { loadPosts, loadProfile } from "./load-content.ts";
+import { CONTENT_DIR, loadPosts, loadProfile } from "./load-content.ts";
+
+const OUT_FILE = new URL("../src/data/feeds.generated.json", import.meta.url);
+const IMAGE_DIR = new URL("../public/cached/", import.meta.url);
+const MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+/** True when the last fetch is under a day old and no content/ file (e.g. a new link) has changed since. */
+async function isFresh(): Promise<boolean> {
+  try {
+    const fetchedAt = (await stat(OUT_FILE)).mtimeMs;
+    if (Date.now() - fetchedAt > MAX_AGE_MS) return false;
+    await stat(IMAGE_DIR); // The JSON points at these images.
+    const files = await readdir(CONTENT_DIR, { recursive: true });
+    const mtimes = await Promise.all(files.map(async (f) => (await stat(path.join(CONTENT_DIR, f))).mtimeMs));
+    return mtimes.every((t) => t < fetchedAt);
+  } catch {
+    return false; // Nothing fetched yet.
+  }
+}
+
+// `pnpm dev` passes --if-stale so startup doesn't wait ~20s on the network; build and `pnpm fetch-feeds` always refetch.
+if (process.argv.includes("--if-stale") && (await isFresh())) {
+  console.log("[fetch-feeds] reusing the last fetch (under a day old). Run `pnpm fetch-feeds` to refresh.");
+  process.exit(0);
+}
 
 const { links } = await loadProfile();
-const OUT_FILE = new URL("../src/data/feeds.generated.json", import.meta.url);
 const TIMEOUT_MS = 10_000;
 const BROWSER_UA = { "User-Agent": "Mozilla/5.0 (compatible; portforio-build)" };
 
-const IMAGE_DIR = new URL("../public/cached/", import.meta.url);
 const IMAGE_PATH = "/cached/";
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 

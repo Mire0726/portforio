@@ -15,6 +15,8 @@ pnpm preview   # build 結果の確認
 
 `dev` / `build` の前に `scripts/fetch-feeds.ts` が Zenn の記事一覧、GitHub のアイコン URL、リンクカード用の OGP（タイトル・説明・画像）を取得して `src/data/feeds.generated.json` を生成し、アプリはそれを静的に import します（Zenn の API はブラウザから CORS で叩けないためビルド時に取得）。ユーザー名は `content/profile.md` の `links` から読みます。取得に失敗してもビルドは止まらず、該当チャンネルに「読み込めませんでした」が出るだけです。
 
+`dev` は起動を速くするため、前回の取得から 24 時間以内で `content/` も変わっていなければ取得をスキップします。最新の Zenn 記事などを取り直したいときは `pnpm fetch-feeds` を実行してください。
+
 ## 内容の更新
 
 | 変えたいもの | 場所 |
