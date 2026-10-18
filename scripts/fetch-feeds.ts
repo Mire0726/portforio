@@ -107,7 +107,11 @@ function decodeIco(buf: Buffer): Sharp {
   const headerSize = data.readUInt32LE(0);
   const width = data.readInt32LE(4);
   const height = data.readInt32LE(8) / 2; // Doubled to include the AND mask.
+  // Untrusted header: .ico images are at most 256px, so anything else would just allocate a huge buffer.
+  const valid = (n: number) => Number.isInteger(n) && n >= 1 && n <= 256;
+  if (!valid(width) || !valid(height)) throw new Error("invalid .ico size");
   if (data.readUInt16LE(14) !== 32) throw new Error("unsupported .ico bit depth");
+  if (data.length < headerSize + width * height * 4) throw new Error("truncated .ico");
   // Rows are stored bottom-up in BGRA.
   const rgba = Buffer.alloc(width * height * 4);
   for (let y = 0; y < height; y++) {
@@ -124,6 +128,18 @@ function decodeIco(buf: Buffer): Sharp {
 }
 
 const isIco = (buf: Buffer) => buf.readUInt32BE(0) === 0x00000100;
+
+/** The body, aborting once it passes maxBytes: content-length is missing on chunked responses. */
+async function readLimited(res: Response, maxBytes: number): Promise<Buffer> {
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for await (const chunk of res.body ?? []) {
+    total += chunk.byteLength;
+    if (total > maxBytes) throw new Error("too large"); // Leaving the loop cancels the stream.
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
 
 // Many cards share a favicon (every Zenn article), so each image is fetched once.
 const imageCache = new Map<string, Promise<string | undefined>>();
@@ -161,7 +177,7 @@ async function downloadImage(url: string, size: keyof typeof IMAGE_SIZES): Promi
       await res.body?.cancel(); // Release the connection.
       throw new Error(res.ok ? "too large" : `${res.status}`);
     }
-    const input = Buffer.from(await res.arrayBuffer());
+    const input = await readLimited(res, MAX_IMAGE_BYTES);
     const output = await (isIco(input) ? decodeIco(input) : sharp(input))
       .resize({ ...IMAGE_SIZES[size], withoutEnlargement: true })
       .webp({ quality: 75 })
